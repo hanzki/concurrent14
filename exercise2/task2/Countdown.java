@@ -11,11 +11,11 @@ public class Countdown {
     }
 
     public void awaitZero() {
-        synchronized(this) {
-            while(value > 0) {
+        synchronized (this) {
+            while (value > 0) {
                 try {
                     this.wait();
-                } catch(InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -27,7 +27,7 @@ public class Countdown {
         this.notify();
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         final Countdown cd = new Countdown(10);
         ExecutorService es = Executors.newFixedThreadPool(4);
         es.execute(new Runnable() {
@@ -38,7 +38,7 @@ public class Countdown {
                 System.out.println("Waiting done");
             }
         });
-        for (int i = 0 ; i < 10; ++i){
+        for (int i = 0; i < 10; ++i) {
             es.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -48,7 +48,7 @@ public class Countdown {
             });
         }
         es.shutdown();
-        if(es.awaitTermination(10000L, TimeUnit.MILLISECONDS)){
+        if (es.awaitTermination(10000L, TimeUnit.MILLISECONDS)) {
             System.out.println("done");
             System.exit(0);
         } else {

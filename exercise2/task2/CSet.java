@@ -1,5 +1,5 @@
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
 
 public class CSet<T> {
 
@@ -9,21 +9,15 @@ public class CSet<T> {
         this.set = new HashSet<T>();
     }
 
-    public void put(T obj) {
-        synchronized(this) {
-            set.add(obj);
-        }
+    public synchronized void put(T obj) {
+        set.add(obj);
     }
 
-    public void remove(T obj) {
-        synchronized(set) {
-            set.remove(obj);
-        }
+    public synchronized void remove(T obj) {
+        set.remove(obj);
     }
 
     public synchronized boolean contains(T obj) {
-        synchronized(set) {
-            return set.contains(obj);
-        }
+        return set.contains(obj);
     }
 }

@@ -2,17 +2,12 @@ public class WaitSilentlyForever extends Thread {
 
     @Override
     public void run() {
-        synchronized(this) {
-            while(true) {
-                if(true) {
-                    try {
-                        this.wait();
-                    } catch(InterruptedException e) {
-                        e.printStackTrace();
-                    }
+        synchronized (this) {
+            while (true) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
                 }
-
-                System.err.println("An error has occurred!");
             }
         }
     }
@@ -20,6 +15,7 @@ public class WaitSilentlyForever extends Thread {
     public static void main(String[] args) {
         WaitSilentlyForever s = new WaitSilentlyForever();
         s.start();
+        s.interrupt();
 
         //The programmer intends to that the program wait silently forever
         //Is he correct? Refer to the Java Language Specification chapter 17.2
