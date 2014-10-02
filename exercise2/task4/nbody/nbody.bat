@@ -1,0 +1,1 @@
+java -cp ./bin fi.hut.cs.t1065600.nbody.NBody

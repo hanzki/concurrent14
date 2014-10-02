@@ -1,0 +1,16 @@
+The file dubinski.tab contains a simple (free format) table of 7 columns and 
+81920 rows: the masses and six phase space coordinates (x,y,z,vx,vy,vz) of 
+81920 particles that define the initial conditions for a MW/Andromeda 
+collision. Contact John Dubinski (dubinski@cita.utoronto.ca) for more details
+(see also: Dubinski, Mihos & Hernquist, 1996, ApJ, 462, 576). Its the model B
+collision discussed in this paper).
+
+The data here may be slightly different than the ones in other similar archives
+(e.g. GC3). The 81920 particles are in the following order:
+
+    16384 Gal. disk
+    16384 And. disk
+    8192  Gal. bulge
+    8192  And. bulge
+    16384 Gal. halo
+    16384 And. halo
