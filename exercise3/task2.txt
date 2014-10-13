@@ -1,0 +1,2 @@
+Task 2:
+	wait(s) decreases the semaphore s by one and proceeds taken that the semaphore had value greater than one. If S.V is initialized in any positive integer k it is possible for threads to pass k wait(s) operations before semaphore has zero value. There is no guarantee that thread which passes wait(s) on p2 will pass the CS on p3 before another thread passes p2 and enters CS on p3 if the initial value of S.V is greater than one.
