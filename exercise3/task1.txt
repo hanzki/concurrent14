@@ -1,0 +1,6 @@
+Task 1:
+	Algorithm 6.16:
+	Possible prints are "pqr" and "prq" because "q" or "r" can't be printed before p signals S1 or S2 but after printing "p" there is no gurantee of order of "q" and "r",
+	
+	Algorithm 6.17:
+	The program will either execute p before q and exit normally without printing anything or it will start executing q first and get stuck in a infinite loop printing "*" over and over.
