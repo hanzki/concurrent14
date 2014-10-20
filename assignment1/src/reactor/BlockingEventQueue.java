@@ -1,36 +1,62 @@
 package reactor;
 
 import reactorapi.BlockingQueue;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class BlockingEventQueue<T> implements BlockingQueue<Event<? extends T>> {
+
+    private final int capacity;
+    private final Queue<Event<? extends T>> queue;
+
 	public BlockingEventQueue(int capacity) {
-		// TODO: Implement BlockingEventQueue(int).
+        this.capacity = capacity;
+        queue = new LinkedList<Event<? extends T>>();
 	}
 
 	public int getSize() {
-		throw new UnsupportedOperationException();
-		// TODO: Implement BlockingEventQueue.getSize().
+        synchronized (queue){
+            return queue.size();
+        }
 	}
 
 	public int getCapacity() {
-		throw new UnsupportedOperationException(); // Replace this.
-		// TODO: Implement BlockingEventQueue.getCapacity().
+        return capacity;
 	}
 
 	public Event<? extends T> get() throws InterruptedException {
-		throw new UnsupportedOperationException(); // Replace this.
-		// TODO: Implement BlockingEventQueue.get().
+        synchronized (queue){
+            while(queue.isEmpty()){
+                queue.wait();
+            }
+            Event<? extends T> event = queue.poll();
+            queue.notifyAll();
+            return event;
+        }
 	}
 
-	public synchronized List<Event<? extends T>> getAll() {
-		throw new UnsupportedOperationException(); // Replace this.
-		// TODO: Implement BlockingEventQueue.getAll().
+	public List<Event<? extends T>> getAll() {
+        List<Event<? extends T>> events = new ArrayList<Event<? extends T>>();
+        synchronized (queue){
+            while(!queue.isEmpty()){
+                events.add(queue.poll());
+            }
+            queue.notifyAll();
+        }
+        return events;
 	}
 
 	public void put(Event<? extends T> event) throws InterruptedException {
-		// TODO: Implement BlockingEventQueue.put(Event).
+		synchronized (queue) {
+            while(queue.size() >= capacity){
+                queue.wait();
+            }
+            queue.add(event);
+            queue.notifyAll();
+        }
 	}
 
-	// Add other methods and variables here as needed.
 }

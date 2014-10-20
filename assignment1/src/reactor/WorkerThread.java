@@ -1,6 +1,7 @@
 package reactor;
 
 import reactorapi.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class WorkerThread<T> extends Thread {
 	private final EventHandler<T> handler;
@@ -14,10 +15,18 @@ public class WorkerThread<T> extends Thread {
 	}
 
 	public void run() {
-		// TODO: Implement WorkerThread.run().
+		while(!interrupted()){
+            try {
+                T message = handler.getHandle().read();
+                queue.put(new Event<T>(message, handler));
+                if(message == null) Thread.currentThread().interrupt();
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
+        }
 	}
 
 	public void cancelThread() {
-		// TODO: Implement WorkerThread.cancelThread().
-	}
+        throw new NotImplementedException();
+    }
 }
