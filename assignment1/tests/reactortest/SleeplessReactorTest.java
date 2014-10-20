@@ -1,7 +1,7 @@
 package reactortest;
 
 import reactor.*;
-import concassess.testee.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * This variant of {@link BasicReactorTest} does not sleep between characters.

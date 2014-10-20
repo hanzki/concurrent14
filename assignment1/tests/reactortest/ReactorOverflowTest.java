@@ -3,7 +3,7 @@ package reactortest;
 import junit.framework.*;
 import reactor.*;
 import reactorapi.*;
-import concassess.testee.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * This test attempts to overload your Reactor's buffers by feeding data from a

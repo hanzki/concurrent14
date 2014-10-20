@@ -3,8 +3,8 @@ package reactortest;
 import junit.framework.*;
 import reactor.BlockingEventQueue;
 import reactor.Event;
-import concassess.testee.*;
 import net.sourceforge.groboutils.junit.v1.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * The basic event queue test checks that all the operations of the queue
@@ -26,6 +26,7 @@ public class BasicQueueTest extends TestCase {
 		sh[1] = new StringConsumer(q, true);
 	}
 
+    @org.junit.Test
 	public void testSimpleTest() throws Throwable {
 		for (int it = 0; it < ITERATIONS; it++) {
 			doSetUp();

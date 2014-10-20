@@ -2,7 +2,7 @@ package reactortest;
 
 import junit.framework.*;
 import reactor.*;
-import concassess.testee.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * The basic reactor test is effectively the example program: It creates two

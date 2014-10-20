@@ -1,6 +1,6 @@
 package reactortest;
 
-import concassess.testee.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * The event queue stress test checks correct functioning of your solution in

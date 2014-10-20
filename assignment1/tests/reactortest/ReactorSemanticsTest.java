@@ -3,7 +3,7 @@ package reactortest;
 import junit.framework.*;
 import reactor.*;
 import reactorapi.*;
-import concassess.testee.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * The Reactor semantics test creates two objects and feeds objects to them

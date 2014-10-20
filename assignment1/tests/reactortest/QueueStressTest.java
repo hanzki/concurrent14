@@ -2,8 +2,8 @@ package reactortest;
 
 import junit.framework.*;
 import reactor.BlockingEventQueue;
-import concassess.testee.*;
 import net.sourceforge.groboutils.junit.v1.*;
+import concassess.testee.ConcTestRunner;
 
 /**
  * The event queue stress test checks correct functioning of your solution in
