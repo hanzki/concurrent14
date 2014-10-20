@@ -22,6 +22,7 @@ public class Dispatcher {
 	public void handleEvents() throws InterruptedException {
 		while(!handlers.isEmpty()){
             Event<?> event = select();
+            if(event.getEvent() == null) removeHandler(event.getHandler());
             event.handle();
         }
 	}
@@ -38,7 +39,7 @@ public class Dispatcher {
 
 	public void removeHandler(EventHandler<?> h) {
 		if(handlers.containsKey(h)){
-            handlers.get(h).interrupt();
+            handlers.get(h).cancelThread();
             handlers.remove(h);
         }
 	}

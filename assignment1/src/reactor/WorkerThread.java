@@ -1,32 +1,36 @@
 package reactor;
 
-import reactorapi.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import reactorapi.EventHandler;
 
 public class WorkerThread<T> extends Thread {
-	private final EventHandler<T> handler;
-	private final BlockingEventQueue<Object> queue;
+    private final EventHandler<T> handler;
+    private final BlockingEventQueue<Object> queue;
 
-	// Additional fields are allowed.
+    private volatile boolean running;
 
-	public WorkerThread(EventHandler<T> eh, BlockingEventQueue<Object> q) {
-		handler = eh;
-		queue = q;
-	}
+    // Additional fields are allowed.
 
-	public void run() {
-		while(!interrupted()){
+    public WorkerThread(EventHandler<T> eh, BlockingEventQueue<Object> q) {
+        handler = eh;
+        queue = q;
+    }
+
+    public void run() {
+        running = true;
+        while (running) {
             try {
                 T message = handler.getHandle().read();
-                queue.put(new Event<T>(message, handler));
-                if(message == null) Thread.currentThread().interrupt();
-            } catch (InterruptedException e){
-                Thread.currentThread().interrupt();
+                if (running) {
+                    queue.put(new Event<T>(message, handler));
+                }
+                if (message == null) running = false;
+            } catch (InterruptedException e) {
+                running = false;
             }
         }
-	}
+    }
 
-	public void cancelThread() {
-        throw new NotImplementedException();
+    public void cancelThread() {
+        running = false;
     }
 }
