@@ -1,0 +1,4 @@
+Hannu Huhtanen 291288
+
+Task 2:
+Writers can't starve because in a situation where there are one or multiple readers executing and a writer is started. Writer will have to wait for OKtoWrite but while it's waiting all additional readers have to wait also. Once all running readers are complete the writer can continue.
