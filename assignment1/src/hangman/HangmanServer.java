@@ -1,5 +1,6 @@
 package hangman;
 
+import hangmanrules.HangmanRules;
 import reactor.Dispatcher;
 import reactorapi.EventHandler;
 import reactorapi.Handle;
@@ -8,41 +9,46 @@ import reactorexample.TCPTextHandle;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Created by Hanzki on 22.10.2014.
  */
 public class HangmanServer {
-    private static final Logger log = Logger.getLogger( HangmanServer.class.getName());
+    private static final Logger log = Logger.getLogger(HangmanServer.class.getName());
     private final Dispatcher dispatcher;
-    private final int guessLimit;
-    private final String wordToGuess;
 
-    private char[] currentWord;
-    private int guessLeft;
+    private final List<TCPHandler> handlers;
+    private final HangmanRules<TCPTextHandle> game;
+    private final AcceptHandler ah;
 
     public HangmanServer(int guessLimit, String wordToGuess) throws IOException {
-        this.guessLimit = guessLimit;
-        this.wordToGuess = wordToGuess;
         dispatcher = new Dispatcher();
 
-        guessLeft = guessLimit;
-        currentWord = new char[wordToGuess.length()];
-        Arrays.fill(currentWord, '-');
+        handlers = new ArrayList<TCPHandler>();
+        game = new HangmanRules<TCPTextHandle>(wordToGuess, guessLimit);
 
-        dispatcher.addHandler(new AcceptHandler());
+        ah = new AcceptHandler();
+        dispatcher.addHandler(ah);
         log.info("Hangman server created");
     }
 
     public void execute() {
-        System.out.println(wordToGuess + " " + guessLimit);
         try {
             dispatcher.handleEvents();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.out.println("Shutting down");
+        }
+    }
+
+    private void closeDispatcher() {
+        log.info("closeDispatchers called");
+        ah.ah.close();
+        for (TCPHandler eh : handlers) {
+            eh.th.close();
         }
     }
 
@@ -63,8 +69,11 @@ public class HangmanServer {
 
             if (s == null) {
                 dispatcher.removeHandler(this);
+                ah.close();
             } else {
-                dispatcher.addHandler(new TCPHandler(s));
+                TCPHandler h = new TCPHandler(s);
+                dispatcher.addHandler(h);
+                handlers.add(h);
             }
         }
     }
@@ -72,12 +81,13 @@ public class HangmanServer {
     private class TCPHandler implements EventHandler<String> {
         final TCPTextHandle th;
         final Socket socket;
+        private HangmanRules.Player player;
 
         private TCPHandler(Socket s) {
             socket = s;
             th = new TCPTextHandle(s);
+            player = null;
             log.info("New player " + System.identityHashCode(socket) + " joined ip:" + socket.getInetAddress().getHostAddress());
-            th.write(String.valueOf(currentWord) + " " + guessLeft);
         }
 
         @Override
@@ -88,24 +98,27 @@ public class HangmanServer {
         @Override
         public void handleEvent(String s) {
             if (s == null) {
+                game.removePlayer(player);
+                handlers.remove(this);
                 dispatcher.removeHandler(this);
+                th.close();
                 log.info("Player " + System.identityHashCode(socket) + " left.");
-            } else {
-                if(s.length() == 1 && 'a' <= s.charAt(0) && s.charAt(0) <= 'z'){
-                    char guess = s.charAt(0);
-                    if(wordToGuess.indexOf(guess) > -1){
-                        int i = 0;
-                        while((i = wordToGuess.indexOf(guess, i)) > -1){
-                            currentWord[i] = wordToGuess.charAt(i);
-                            i++;
-                        }
-                    } else {
-                        guessLeft--;
-                    }
-                    th.write(guess + " " + String.valueOf(currentWord) + " " + guessLeft + " lol");
+            } else if (player == null) {
+                if (s.matches("[a-zA-Z]+")) {
+                    player = game.addNewPlayer(th, s);
+                    th.write(game.getStatus());
                 }
-                System.err.println(s);
-                th.write(s);
+            } else if (s.length() == 1 && 'a' <= s.charAt(0) && s.charAt(0) <= 'z') {
+                char guess = s.charAt(0);
+                game.makeGuess(guess);
+
+                for (HangmanRules<TCPTextHandle>.Player p : game.getPlayers()) {
+                    p.playerData.write(player.getGuessString(guess));
+                }
+
+                if (game.gameEnded()) {
+                    closeDispatcher();
+                }
             }
         }
     }
@@ -142,12 +155,13 @@ public class HangmanServer {
             HangmanServer server = new HangmanServer(guessLimit, word);
             server.execute();
         } catch (IOException ex) {
+            ex.printStackTrace();
             System.err.println("Server start up failed.");
         }
     }
 
     static void printUsage() {
-        System.out.println("Usage: HangmanServer <word to guess> <number of failed attempts before termination>");
+        System.err.println("Usage: HangmanServer <word to guess> <number of failed attempts before termination>");
     }
 
 }

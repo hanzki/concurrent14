@@ -40,6 +40,7 @@ public class Dispatcher {
 	public void removeHandler(EventHandler<?> h) {
 		if(handlers.containsKey(h)){
             handlers.get(h).cancelThread();
+            handlers.get(h).interrupt();
             handlers.remove(h);
         }
 	}

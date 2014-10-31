@@ -25,6 +25,7 @@ public class WorkerThread<T> extends Thread {
                 }
                 if (message == null) running = false;
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 running = false;
             }
         }
