@@ -19,9 +19,9 @@
   <target name="checkfiles">
     <condition property="filesok">
       <and>
-	<available file="tuplespaces/LocalTupleSpace.java"/>
-	<available file="chat/ChatServer.java"/>
-	<available file="chat/ChatListener.java"/>
+	<available file="src/tuplespaces/LocalTupleSpace.java"/>
+	<available file="src/chat/ChatServer.java"/>
+	<available file="src/chat/ChatListener.java"/>
 	<or>
 	  <available file="report.pdf"/>
 	  <available file="rapport.pdf"/>

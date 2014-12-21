@@ -1,0 +1,100 @@
+div.container {
+        width: 100%;
+        margin: 0px;
+        line-height: 150%;
+}
+
+div.header {
+        padding: 0.5em;
+        clear: left;
+        border-bottom: 1px solid gray;
+}
+
+h1.header, h2.header {
+        text-align: right;
+        padding: 0px;
+}
+
+img {
+	padding-left: 0.5em;
+	padding-top: 1em;
+	padding-bottom: 0em;
+}
+
+img.header {
+        float: left;
+	padding: 0em;
+}
+
+div.footer {
+        clear: left;
+}
+
+div.menu {
+        float: left;
+        width: 14em;
+        margin: 0px;
+        padding: 1em;
+        border-bottom: 1px solid gray;
+}
+
+li.menu {
+        padding-bottom: 1em;
+}
+
+div.content {
+        border-left: 1px solid gray;
+        border-bottom: 1px solid gray;
+        padding: 1em;
+}
+
+body {
+        color: black;
+        background-color: white;
+}
+
+a:hover {
+        color: black;
+        background-color: #9090ff;
+}
+
+dt.footnote {
+	font-weight: bold;
+}
+
+dt.date {
+        font-weight: bold;
+}
+
+/*dd.news {
+        padding-bottom: 0em;
+}*/
+
+td {
+        padding-right: 1em;
+}
+
+th {
+        color: black;
+        background-color: #c0c0c0;
+}
+
+tr.lecture {
+        color: black;
+        background-color: #90ff90;
+}
+
+tr.exercise {
+        color: black;
+        background-color: #9090ff;
+}
+
+tr.deadline {
+        color: black;
+        background-color: #ff9090;
+}
+
+table.submitform {
+	border: 1px solid gray;
+}
+

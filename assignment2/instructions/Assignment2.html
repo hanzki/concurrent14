@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0058)http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/PA2.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>T-106.5600 Concurrent Programming</title>
+<link rel="stylesheet" type="text/css" href="./Assignment2_files/style.css">
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <img class="header" src="./Assignment2_files/aalto-logo-en-3.gif" alt="Aalto University">
+  <h1 class="header">T-106.5600 Concurrent Programming</h1>
+  <h2 class="header">Autumn 2014, periods I-II</h2>
+</div>
+
+<div class="content">
+
+
+<h1>Assignment 2 — Tuple space</h1>
+
+<p>
+  In this assignment, you will implement an interprocess communication
+  mechanism and use it for a simple chat system.  In the following,
+  "should" is used to denote a weak requirement; something
+  characteristic of a good solution. "must" and "may not" denote
+  strong requirements; failure to achieve these in your own code may
+  cause your assignment to be failed; conversely, you may assume that
+  all requirements on other code marked using these always hold.
+</p>
+
+<h2>Background</h2>
+
+<p>
+  You have been assigned to write a prototype for a new
+  platform-independent chat system that is intended to allow users to
+  participate in a conversation from a wide range of devices. To make
+  it easier to balance the load between servers and make the system
+  less dependent on a specific communcations mechanism, your boss has
+  decreed that you use 
+  <a href="http://portal.acm.org/citation.cfm?id=2433">tuple spaces</a>
+  to distribute messages between threads and the various servers in
+  the system. Your job is to implement a basic tuple space system (the
+  design team is still arguing about which tuple space implementation
+  to use) and get the message distribution part of the chat system
+  running.
+</p>
+
+<h2>Task descriptions</h2>
+
+<p>
+  Your task is to write a simple tuple space implementation using
+  standard Java synchronisation mechanisms and use it for the message
+  passing part of a simple chat system. These are two separate tasks;
+  your tuple space implementation must work with any compliant chat
+  system implementation and vice versa. <strong>Both tasks must be
+  completed well to pass the assignment. </strong>
+</p>
+<p>
+  The tasks are described on separate pages:
+</p>
+
+<ul>
+  <li><a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/tuplespace.shtml">Task A: Tuple space</a></li>
+  <li><a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/chat.shtml">Task B: Chat system</a></li>
+</ul>
+
+<p>
+  You should download the <a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/hw2skeleton.zip">project skeleton code and build scripts</a>.
+  An additional <a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/tupletest.jar">tester</a> is available (<a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/test.pdf">documentation</a>).
+  See <a href="http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/eclipse.shtml">Eclipse instructions</a> for getting started.
+</p>
+
+<p>
+  The test JAR may fail on some systems (i.e.. Windows) if it is placed in a folder 
+  that has spaces in it's full path. This manifests as <code>ClassNotFoundExceptions</code>
+  If the tests throw <code>VerifyErrors</code>, switch your compiler compiliance target to 
+  version 1.5 or 1.6. To do this use the <code>-target</code> compiler argument or under
+  Eclipse, go to Project Properties -&gt; Java Compiler -&gt; Compiler complience level.
+</p>
+
+<h2>General requirements</h2>
+
+<h3>Specifications and concurrency</h3>
+
+<p>
+  Your code must work exactly as described in the assignment
+  specification and in the task descriptions. Any deviations may cause
+  you to fail the assignment! If you're not sure about something, ask
+  in the course newsgroup.
+</p>
+
+<p>
+  Perfectly correct concurrency in your code is required. Design your
+  code before writing it, and try to keep the concurrency simple. Read
+  your code through line-by-line and examine if there is any
+  concurrent execution elsewhere that may cause problems. Even minor
+  concurrency problems in your code may cause you to get a lower grade
+  or fail the assignment.
+</p>
+
+<p>
+  Efficient use of concurrency is encouraged. Inefficient use of concurrency
+  constructs will result in a lower grade.
+</p>
+
+<h3>Style requirements</h3>
+
+<p>
+  The program should be written in clear, reasonably object-oriented
+  Java. We will not accept programs that are hard to read, violate
+  basic object-oriented programming principles or contain a large
+  amount of repeated code with minor variations. Cryptic method and
+  variable names should not be used.
+</p>
+
+<p>
+  Explanatory comments are required for code that is not
+  self-explanatory to a programmer fluent in Java. However, you should
+  not clutter your program by stating the obvious. Javadoc comments describing
+  the required methods are unnecessary but tolerated. Also, please bear
+  in mind that your programs will be read by people who are familiar
+  with the specification; there is no need to repeat the requirements in your
+  comments.
+</p>
+
+<h3>Language</h3>
+
+<p>
+  Comments, variable and method names and reports may be written in English.
+</p>
+
+
+<h2>Plan</h2>
+
+<p>
+	You are required to submit a plan for how you intend to implement the required 
+    functionality in all parts of the project. In particular, you should explain, at
+	least in terms of pseudocode, the synchronisation and waiting algorithms you
+	intend to use to implement the tuple space operations as well as how you use the
+    tuple space to transfer messages in the chat system. The plan should not exceed 
+    2-4 A4 pages of 10-12 point text.  Please focus on explaining your reasoning rather
+    than what your solution does in detail. Refer to the specification when appropritate,
+    but do not needlessly repeat it (e.g. your plan should not be a verbatim "rewrite" 
+    of the specification).
+</p>
+
+<p>The deadline for the plan is 2014-11-23 23:59.</p>
+
+<h2>Final submission</h2>
+
+<p>
+ Submission is through <a href="https://optima.aalto.fi/">Optima</a>.
+ Note that multiple submissions are allowed; the last one will be assessed. The deadline is 2014-12-21 23:59. 
+ Your submission must contain:
+</p>
+
+<table border="1">
+
+  <tbody><tr>
+
+    <td>
+      <code>tuplespaces/</code>
+    </td>
+
+    <td>
+      The Java (version 1.5 or 1.6) source code of your tuple
+      space implementation (the directory corresponds to the
+      <code>tuplespaces</code> package).
+    </td>
+
+  </tr>
+
+  <tr>
+
+    <td>
+      <code>chat/</code>
+    </td>
+
+    <td>
+      The Java (version 1.5 or 1.6) source code of your chat
+      system implementation (the directory corresponds to the
+      <code>chat</code> package).
+    </td>
+
+  </tr>
+
+  <tr>
+    <td>
+      <code>report.pdf</code>
+    </td>
+    <td>
+      The report describing your solution (as PDF).
+    </td>
+  </tr>
+
+</tbody></table>
+
+<p>
+  Your program will be compiled and run with the standard library and tuple server included in the classpath.
+</p>
+
+<p>
+  You may work in pairs. The grading does not depend on whether you are working alone or in a pair.
+</p>
+
+<h3>Report</h3>
+
+<p>
+	Your submission must contain a report describing briefly:
+</p>
+
+<ul>
+	<li>
+    	The reasoning behind your solution, in particular:
+ 		<ul>
+  			<li>how the tuple space ensures correctness</li>
+			<li>how the chat system ensures that messages are not lost or duplicated </li>
+			<li>how the message order is kept consistent across listeners</li>
+		</ul>
+	</li>
+    <li>
+    	A list of all the tuple types used an a description of what they are used for
+    </li>
+	<li>
+    	What measures you have taken to ensure your solution is correct (e.g. model checking, proofs, testing).   
+	</li>
+	<li>
+    	Any unexpected behaviour you may have encountered during testing and how you have investigated and resolved it.
+    </li>
+</ul>
+
+<p>
+The report should not exceed 2-4 A4 pages of 10-12 point text, excluding diagrams and other graphics. 
+Please focuson explaining your reasoning rather than what your solution does in detail.
+</p>
+
+
+<p>
+  <small>Page published on 2014-11-06. Page last updated on 2014-11-27.  </small>
+</p>
+</div></div></body></html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0065)http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/tuplespace.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>T-106.5600 Concurrent Programming</title>
+<link rel="stylesheet" type="text/css" href="./tuplespace_files/style.css">
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <img class="header" src="./tuplespace_files/aalto-logo-en-3.gif" alt="Aalto University">
+  <h1 class="header">T-106.5600 Concurrent Programming</h1>
+  <h2 class="header">Autumn 2014, periods I-II</h2>
+</div>
+
+<div class="content">
+
+
+<h1>Assignment 2: Task A: Tuple space</h1>
+
+<p>
+  The tuple space implementation must be thread-safe (any method may
+  be called at any time by any thread), but it need not be capable of
+  communication between virtual machines; however, it must be capable
+  of working with the example network tuple
+  space proxy and server.
+</p>
+
+<h2>Tuple space API</h2>
+
+<p>
+  Your tuple space implementation must conform to the following
+  specification:
+</p>
+
+<p>
+  All the classes below are in package <code>tuplespaces</code>.
+</p>
+
+<ul>
+
+  <li>
+    
+    <code>public class LocalTupleSpace implements TupleSpace</code>
+
+    <ul>
+
+      <li>
+
+	<code>public LocalTupleSpace()</code>
+
+        <ul>
+
+          <li>
+	    Create an empty tuple space (a bag of tuples that
+	    are represented by <code>String</code> arrays).
+	  </li>
+
+        </ul>
+
+      </li>
+
+    </ul>
+
+  </li>
+
+  <li>
+    
+    <code>public interface TupleSpace</code>
+
+    <ul>
+
+      <li>
+
+        <code>public String[] get(String... pattern)</code>
+
+        <ul>
+
+          <li>
+	    Remove and return a tuple (an array of entries) matching
+	    <code>pattern</code> (which may not be <code>null</code>)
+	    from tuple space. Block until one is available. A tuple
+	    matches a pattern if both have the same amount of entries
+	    and every entry matches. A <code>null</code> entry in the
+	    pattern matches any object in that entry in the tuple. Any
+	    other object <code>p</code> in the pattern matches any
+	    object <code>t</code> in the corresponding entry in the
+	    tuple for which <code>p.equals(t)</code> (i.e. contains
+	    the same character string). If several matching tuples are
+	    found in the tuple space, any one of them may be returned.
+	  </li>
+
+          <li>
+	    The returned tuple must have exactly the same textual
+	    contents as the tuple that was <code>put</code> (contain
+	    the same amount of <code>String</code> objects as the
+	    original and each <code>String equals</code> the
+	    <code>String</code> in the same position in the original),
+	    but may be a different array object and may contain
+	    different <code>String</code> objects.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+        <code>public String[] read(String... pattern)</code>
+
+        <ul>
+
+          <li>
+	    Return but do not remove a tuple (an array of entries) matching
+	    <code>pattern</code> (which may not be <code>null</code>)
+	    from tuple space. Block until one is available. A tuple
+	    matches a pattern if both have the same amount of entries
+	    and every entry matches. A <code>null</code> entry in the
+	    pattern matches any object in that entry in the tuple. Any
+	    other object <code>p</code> in the pattern matches any
+	    object <code>t</code> in the corresponding entry in the
+	    tuple for which <code>p.equals(t)</code> (i.e. contains
+	    the same character string). If several matching tuples are
+	    found in the tuple space, any one of them may be returned.
+	    A <code>read</code> may or may not see a newly added matching tuple before
+	    it is removed by a <code>get</code> that also matches the tuple.
+	  </li>
+
+          <li>
+	    The returned tuple must have exactly the same textual
+	    contents as the tuple that was <code>put</code> (contain
+	    the same amount of <code>String</code> objects as the
+	    original and each <code>String equals</code> the
+	    <code>String</code> in the same position in the original),
+	    but may be a different array object and may contain
+	    different <code>String</code> objects.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+	<code>public void put(String... tuple)</code>
+
+        <ul>
+
+          <li>
+	    Insert <code>tuple</code> in tuple
+	    space. <code>tuple</code> is an array of any length
+	    greater than zero and is not
+	    <code>null</code>. <code>tuple</code> may not contain
+	    <code>null</code> values. Tuples stored in the tuple space
+	    may not be affected by changes made to the <code>tuple</code> array
+	    after <code>put</code> has completed.
+          </li>
+
+        </ul>
+
+      </li>
+
+    </ul>
+
+  </li>
+
+</ul>
+
+<h2>Concurrency and synchronisation requirements</h2>
+
+<p>
+  Synchronisation in the tuple space system must be done using nothing
+  but the basic Java synchronisation primitives (those built into the
+  language and <code>java.lang</code>, not
+  <code>java.util.concurrent</code>).  Inefficient solutions, such as
+  polling and busy-waiting, will be rejected. Use of unsafe methods
+  such as <code>java.lang.Thread.destroy()</code> will also lead to
+  rejection.
+</p>
+
+<p>
+  Interruption of tuple space operations is not permitted; the results of doing
+  so are undefined.
+</p>
+
+<h2>Hints</h2>
+
+<ul>
+  <li>
+    Although it is possible to create a fast tuple matching algorithm
+    using a lot of indexing, this assignment is not about indexing. An
+    algorithm that performs reasonably well in most cases is enough
+    for our purposes; efficient use of threads is more important than
+    efficient matching. 
+  </li>    
+  <li> 
+    Optimising for your chat implementation is a
+    good idea, but beware of making your tuple space chat-specific!
+  </li>
+  <li>
+    Testing your tuple space implementation with a lot of concurrent
+    threads putting and getting tuples at once is a very good idea.
+  </li>
+  <li>
+    You can use <code>System.err</code> for debug output. Using
+    <code>System.out</code> is not allowed.
+  </li>
+</ul>
+
+<!--
+<h2>Dos and dont's</h2>
+
+<ul>
+  <li></li>
+</ul>
+-->
+
+<p>
+  <small>Page last updated on 2014-11-06.</small>
+</p>
+</div></div></body></html>

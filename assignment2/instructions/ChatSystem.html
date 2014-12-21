@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0059)http://www.cs.hut.fi/Studies/T-106.5600/2014/pa2/chat.shtml -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>T-106.5600 Concurrent Programming</title>
+<link rel="stylesheet" type="text/css" href="./ChatSystem_files/style.css">
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+  <img class="header" src="./ChatSystem_files/aalto-logo-en-3.gif" alt="Aalto University">
+  <h1 class="header">T-106.5600 Concurrent Programming</h1>
+  <h2 class="header">Autumn 2014, periods I-II</h2>
+</div>
+
+<div class="content">
+
+
+<h1>Assignment 2: Task B: Chat system</h1>
+
+<p>
+  The chat system is based on channels (or "chat rooms") (identified
+  by
+  <code>String</code>s) to which messages can be sent. It is also
+  possible to listen to a channel. When a listener connects to a
+  channel, the first messages it must receive are the <em>rows</em>
+  last messages (or the total amount sent to the channel, whichever is
+  less) sent to the channel before connection (where <em>rows</em> is
+  a value specified at server startup). After that, the listener must
+  receive all messages sent to the channel since it connected to it,
+  in the order they are sent, until it disconnects from the channel.
+</p>
+
+<p>
+  The chat server is a distributed system running on multiple nodes
+  (e.g. WWW servers, SMS gateways, TV outputs) connected by a tuple
+  space. All nodes run a Java process containing a
+  <code>ChatServer</code> object which can be used by many threads
+  within the node at once to access the chat system. All nodes share
+  channels; i.e. messages sent on one node must reach listeners to
+  that channel on all other nodes using the same tuple space.
+</p>
+
+<h2>Chat system API</h2>
+
+<p>
+  The chat system must conform to the following:
+</p>
+
+<p>
+  All the classes below are in package <code>chat</code>:
+</p>
+
+<ul>
+
+  <li>
+
+    <code>public class ChatServer</code>
+
+    <ul>
+
+      <li>
+
+	<code>public ChatServer(TupleSpace t, int
+	rows, String[] channelNames)</code>
+
+        <ul>
+
+          <li>
+	    Create a new chat server with a set of channels identified
+	    by the <code>String</code>s in <code>channelNames</code>
+	    and a buffer of <code>rows</code> messages for each
+	    channel (the <code>rows</code> last messages must be sent
+	    to new listeners connecting to the channel, if available)
+	    in empty tuple space <code>t</code>. Only one channel set
+	    may be created in each tuple space. Channel names consist
+	    of 1 or more alphabetic characters and are unique and
+	    case-sensitive.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+        <code>public ChatServer(TupleSpace t)</code>
+
+        <ul>
+
+          <li>
+	    Connect to a chat server created with the above
+	    method using tuple space <code>t</code>.
+	  </li>
+
+        </ul>
+
+      </li>
+
+    </ul>
+
+    <ul>
+
+      <li>
+
+	<code>public void writeMessage(String channel,
+	String message)</code>
+
+        <ul>
+
+          <li>
+	    Write message <code>message</code> to channel
+	    <code>channel</code>. This call may block if there is no
+	    space in the buffer to write the message.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+        <code>public ChatListener openConnection(String
+	channel)</code>
+
+        <ul>
+
+          <li>
+	    Open a listening connection to <code>channel</code>.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+        <code>public String[] getChannels()</code>
+
+        <ul>
+
+          <li>
+	    Return list of channels.
+	  </li>
+
+        </ul>
+
+      </li>
+
+    </ul>
+
+  </li>
+
+  <li>
+
+    <code>public class ChatListener</code>
+
+    <ul>
+
+      <li>
+        You may assume that each <code>ChatListener</code> is used by
+        only one thread.
+      </li>
+
+      <li>
+
+        <code>public String getNextMessage()</code>
+
+        <ul>
+
+          <li>
+	    Get the next message from the channel. If no message
+	    exists, wait until it appears.
+	  </li>
+
+        </ul>
+
+      </li>
+
+      <li>
+
+        <code>public void closeConnection()</code>
+
+        <ul>
+
+          <li>
+	    Disconnect the <code>ChatListener</code> from the
+	    channel. After this, the <code>ChatListener</code> may not
+	    be used any more.
+	  </li>
+
+        </ul>
+
+      </li>
+
+    </ul>
+
+  </li>
+
+</ul>
+
+<p>
+  All parameters above are non-<code>null</code>.
+</p>
+
+<h2>Message ordering requirements</h2>
+
+<p>
+  The order of messages on channels must be consistent across the
+  different listeners on a channel (if one message precedes another,
+  it does so for all listeners) and consistent with the order messages
+  are written (if one <code>writeMessage</code> completes before
+  another starts, the message written by the first precedes the
+  message written by the second, even if the writes are to different channels).
+</p>
+
+<h2>ChatUI</h2>
+
+<p>
+  For testing purposes, you can use the example chat system user interface. To start it, run:
+</p>
+
+<p>
+  <kbd>
+    java chatui.ChatUI
+    <strong>
+      &lt;host&gt;:&lt;port&gt;
+      [&lt;buffer size&gt;
+      [&lt;channel name 1&gt;
+      [&lt;channel name 2&gt;
+      [...]]]]
+    </strong>
+  </kbd>
+</p>
+
+<p>
+  <kbd><strong>&lt;host&gt;</strong></kbd> and
+  <kbd><strong>&lt;port&gt;</strong></kbd> are the host name and TCP
+  port of an active tuple server. Specify the buffer size and channel
+  names to create a new set of channels in the tuple space (you may
+  assume that only one set of channels is created in each tuple
+  space).
+</p>
+
+<h3>Usage example</h3>
+
+<p>
+  ChatUI requires a running tuple space
+  server (in the example code). To start a new <code>TupleServer</code> containing an
+  empty tuple space:
+</p>
+<p>
+  <kbd>
+    java tupleserver.TupleServer
+  </kbd>
+</p>
+<p>
+  The command prints out the TCP port the server listens on.
+</p>
+
+<p>
+  To start ChatUI creating three channels
+   (<em>ONE</em>, <em>TWO</em>, <em>THREE</em>) with a buffer of
+   10 <em>rows</em> to an empty tuple space server which runs on local
+   computer in TCP port 12345:
+</p>
+<p>
+  <kbd>
+    java chatui.ChatUI localhost:12345 10 ONE TWO THREE
+  </kbd>
+</p>
+<p>
+  To start second (or third, fourth, etc) ChatUI connecting to the
+  same tuple space server and using the same channels as created above:
+</p>
+<p>
+  <kbd>
+    java chatui.ChatUI localhost:12345
+  </kbd>
+</p>
+<p>
+  Now you should be able to chat between the ChatUIs on the same
+  channels. A message written in one ChatUI should be visible in all
+  ChatUIs connected to the same tuple space.
+</p>
+
+<p>
+  For further convenience, a user interface for starting chat user interfaces
+  is provided as class <code>chatui.MetaUI</code>.
+</p>
+
+<h3>Communication</h3>
+
+<p>
+  The system must be
+  capable of working between machines connected only through the tuple
+  space. In other words, it may not assume that all threads in the distributed
+  system are reachable through any other mechanism than the tuple space.
+</p>
+<p>
+  Each ChatUI client creates an instance of
+  the <code>ChatServer</code> class. There are one or
+  more <code>ChatServer</code> instances, which communicate with each
+  other through the tuple space. Each <code>ChatServer</code> instance
+  provides the same chat services to the ChatUI that created it.
+</p>
+
+<h2>Concurrency and synchronisation requirements</h2>
+
+<p>
+  The chat system must work in a distributed environment connected only
+  through a tuple space. Each
+  <code>ChatListener</code> is used by only one thread at a
+  time. However, a <code>ChatServer</code> may be used by multiple
+  threads. 
+</p>
+
+<h2>Error handling</h2>
+
+<p>
+  To keep this assignment simple, you may ignore many of the errors a
+  tuple space implementation may face. For example, the
+  <code>put</code> and <code>get</code> operations in this simplified
+  implementation may not fail. In a real distributed tuple space
+  implementation, many bad things can happen such as connection
+  failures and timeouts. You may assume that no node is removed from
+  the distributed chat system while an operation is pending or a
+  listener is active (the nodes are all servers on the same corporate
+  net, and if that fails everything breaks anyway).
+</p>
+
+<p>
+  Throwing exceptions in the case of invalid parameters is recommended
+  but not required.
+</p>
+
+<h2>Hints</h2>
+
+<ul>
+
+  <li>
+    The chat system should not leave obsolete tuples (e.g. old messages which
+    have been read by everyone and are no longer in the buffer) in the
+    tuplespace, since this would eventually consume all of the memory in
+    the system and crash it.
+  </li>
+
+  <li>
+    Calls to <code>writeMessage</code> should block if the channel buffer 
+    is full of unread messages to prevent fast producers from filling the
+    tuplespace with messages.
+  </li>
+
+  <li>
+    Tuples can easily be used like semaphores, so similar
+    synchronisation techniques apply.
+  </li>
+
+  <li>
+    A chat channel is like a bounded buffer, except it has multiple
+    readers that all get the same data. Test accordingly.
+  </li>
+
+  <li>
+    You can use <code>System.err</code> for debug output. Using
+    <code>System.out</code> is not allowed.
+  </li>
+</ul>
+
+
+<h2>Dos and don'ts</h2>
+
+<ul>
+  <li>
+    You can assume that the tuplespace and the underlying network work
+    perfectly and without catastrophics failures, such as disconnects
+    or network partitioning.
+  </li>
+  <li>
+    To ensure your solution works when threads are on different systems,
+    avoid using shared fields in <code>ChatServer</code>. A
+    single <code>ChatServer</code> may be used by several threads, but
+    you cannot assume Java synchronization will work between all threads
+    in the system. Declaring all fields
+    in <code>ChatServer</code> <code>final</code> is recommended;
+    after the <code>ChatServer</code> constructor method has
+    finished, the fields should not be modified.
+  </li>
+  <li>
+    Use local variables in methods
+    of <code>ChatServer</code>. Variables defined inside a method are
+    allocated from stack, causing the variables to be visible to one
+    thread only.
+  </li>
+  <li>
+    Don't use <code>LocalTupleSpace</code> directly. Use only
+    the <code>TupleSpace</code> interface and its methods.
+  </li>
+</ul>
+
+<p>
+  <small>Page last updated on 2014-11-06.</small>
+</p></div></div></body></html>
