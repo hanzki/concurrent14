@@ -1,0 +1,22 @@
+This project was created for a course on concurrent programming. Some 
+of the code (tests, interfaces, game logic) were provided as starting 
+point. The code uses java concurrency primitives instead of much more
+useful and preferable java.util.concurrent package because this was
+a limitation during the course.
+
+USAGE:
+You can start a hangman server by running the HangmanServer.java with
+two arguments first of which is the word to guess (in lowercase) and
+second is the ammount of wrong guesses which are allowed before the 
+game ends.
+
+HangmanServer <word to guess> <number of failed attempts before termination>
+
+This prints out the portnumber which the server uses. After starting the
+server any tcp client (ex. netcat) can be used to connect to the server.
+After connection user has to provide a username and after that he can 
+start to make guesses by sending a single lowercase letter to the server.
+The server supports multiple concurrent users.
+
+-- 
+Hannu Huhtanen
