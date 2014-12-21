@@ -5,7 +5,7 @@ import java.util.Arrays;
 /**
  * Created by hanzki on 21.12.2014.
  */
-public class Tuple {
+class Tuple {
 
     private String[] items;
 
