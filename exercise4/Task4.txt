@@ -1,0 +1,22 @@
+Hannu Huhtanen 291288
+
+Task 4:
+
+1. 
+operation StartRead
+if writers != 0 or not empty(OKtoWrite) 
+Changed to:
+if writers != 0 or (not empty(OKtoWrite) and readers = 0)
+
+2.
+operation StartRead
+signalC(OKtoRead) 
+Changed to:
+if empty(OKtoWrite)
+signalC(OKtoRead)
+
+operation EndWrite
+if empty(OKtoRead)
+Changed to:
+if empty(OKtoRead) or not empty(OKtoWrite)
+

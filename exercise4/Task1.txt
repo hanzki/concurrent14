@@ -1,0 +1,4 @@
+Hannu Huhtanen 291288
+
+Task 1:
+writers variable is only accessed in StartWrite and EndWrite operations. writers needs to have 0 value for program to increment writers in StartWrite and it is decremented back to 0 before any other thread can execute StartWrite. So writers has always value of 0 or 1.

@@ -25,7 +25,7 @@
   <target name="checkfiles">
     <condition property="filesok">
       <and>
-	<available file="reactor/Dispatcher.java"/>
+	<available file="src/reactor/Dispatcher.java"/>
 	<available file="hangman/HangmanServer.java"/>
 	<or>
 	  <available file="report.pdf"/>

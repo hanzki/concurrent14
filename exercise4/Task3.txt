@@ -1,0 +1,10 @@
+Hannu Huhtanen 291288
+
+Task 3:
+1. eating[i] => (fork[i] = 2)
+2. !empty(OKtoEat[i]) => (fork[i] < 2)
+3. Sum(i=0..4, fork[i]) = 10 - 2E
+
+1. is true because it's impossible for a philosopher to be eating with less than 2 forks. This is checked first in takeForks and if the condition isn't met philosopher waits before eating. Forks are also checked when releasing forks and if and only if there are two forks available for a neighbouring philosopher he is signalled to eat.
+2. is true because it's impossible for philosopher to stay waiting for works when both of them are available. Philosopher executing realeaseForks always signals any other philosopher who has both forks available before exiting monitor.
+3. This is true because the philosophers can only take forks in pairs and after taking forks are considered to be "eating". Philosophers also always return both of the forks at the same time. So at any time only the "eating" philosophers can have forks and all of them have exactly two forks each.
