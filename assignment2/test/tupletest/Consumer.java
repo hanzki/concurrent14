@@ -28,7 +28,7 @@ class Consumer extends TestRunnable {
 				} catch (InterruptedException ie) {
 					throw new Error("Unexpected interruption");
 				}
-			String s = cl.getNextMessage();
+            String s = cl.getNextMessage();
 			int r;
 			try {
 				r = Integer.parseInt(s);

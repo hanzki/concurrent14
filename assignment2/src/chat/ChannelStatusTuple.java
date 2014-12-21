@@ -14,7 +14,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
     public ChannelStatusTuple(String channelName) {
         this.channelName = channelName;
         firstMessageId = -1;
-        lastMessageId = -1;
+        lastMessageId = 0;
         state = DATA_STATE.FULL;
     }
 

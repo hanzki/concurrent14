@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
 
     private static final Pattern VALID_CHANNEL_NAME_PATTERN = Pattern.compile("[a-zA-Z]+");
-    private final static String DATA_SEPARATOR = "|";
+    private final static String DATA_SEPARATOR = "#";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
 
