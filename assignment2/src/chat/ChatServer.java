@@ -97,7 +97,7 @@ public class ChatServer {
 	}
 
     private static TupleSpace initTupleSpace(TupleSpace t, int rows, String[] channelNames){
-        ServerStatusTuple serverStatusTuple = new ServerStatusTuple(rows, channelNames);
+        ServerStatusTuple serverStatusTuple = new ServerStatusTuple(rows, channelNames, 0);
         t.put(serverStatusTuple.getAsData());
         for(String channelName : serverStatusTuple.getChannelNames()){
             ChannelStatusTuple channelStatusTuple = new ChannelStatusTuple(channelName);

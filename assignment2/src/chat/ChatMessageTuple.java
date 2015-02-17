@@ -4,6 +4,7 @@ package chat;
  * Created by hanzki on 21.12.2014.
  */
 class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
+    private final static String TUPLE_PREFIX = "MSG";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
     private final String channelName;
@@ -39,13 +40,13 @@ class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
 
     @Override
     public String[] getAsTemplate() {
-        return new String[]{CHAT_SERVER_NAME, channelName, String.valueOf(messageId), null};
+        return new String[]{TUPLE_PREFIX, channelName, String.valueOf(messageId), null};
     }
 
     @Override
     public String[] getAsData() throws IllegalStateException {
         if(state != DATA_STATE.FULL) throw new IllegalStateException();
-        return new String[]{CHAT_SERVER_NAME, channelName, String.valueOf(messageId), message};
+        return new String[]{TUPLE_PREFIX, channelName, String.valueOf(messageId), message};
     }
 
     @Override

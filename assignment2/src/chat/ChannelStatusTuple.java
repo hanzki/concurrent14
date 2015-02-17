@@ -5,6 +5,7 @@ package chat;
  */
 class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
     private static final String ID_SEPARATOR = ":";
+    private static final String TUPLE_PREFIX = "CHAN";
     private final String channelName;
     private DATA_STATE state = DATA_STATE.EMPTY;
 
@@ -25,16 +26,6 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         state = DATA_STATE.FULL;
     }
 
-    public ChannelStatusTuple(String[] tupleData) throws IllegalArgumentException {
-        if (tupleData.length != 3) throw new IllegalArgumentException();
-        channelName = tupleData[1];
-        String[] dataParts = tupleData[2].split(ID_SEPARATOR);
-        if (dataParts.length != 2) throw new IllegalArgumentException();
-        firstMessageId = Integer.parseInt(dataParts[0]);
-        lastMessageId = Integer.parseInt(dataParts[1]);
-        state = DATA_STATE.FULL;
-    }
-
     @Override
     public ChannelStatusTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         String dataChannelName;
@@ -48,13 +39,13 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         dataFirstMessageId = Integer.parseInt(dataParts[0]);
         dataLastMessageId = Integer.parseInt(dataParts[1]);
 
-        return new ChannelStatusTuple(dataChannelName,dataFirstMessageId,dataLastMessageId);
+        return new ChannelStatusTuple(dataChannelName, dataFirstMessageId, dataLastMessageId);
     }
 
     @Override
     public String[] getAsTemplate() {
         return new String[]{
-                CHAT_SERVER_NAME,
+                TUPLE_PREFIX,
                 channelName,
                 null};
     }
@@ -63,7 +54,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
     public String[] getAsData() throws IllegalStateException {
         if (state != DATA_STATE.FULL) throw new IllegalStateException();
         return new String[]{
-                CHAT_SERVER_NAME,
+                TUPLE_PREFIX,
                 channelName,
                 firstMessageId + ID_SEPARATOR + lastMessageId};
     }

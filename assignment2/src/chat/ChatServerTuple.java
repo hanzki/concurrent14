@@ -10,8 +10,6 @@ interface ChatServerTuple<T extends ChatServerTuple> {
         FULL
     }
 
-    final static String CHAT_SERVER_NAME = "chatserver";
-
     T parseTupleData(String[] tupleData) throws IllegalArgumentException;
 
     String[] getAsTemplate();
