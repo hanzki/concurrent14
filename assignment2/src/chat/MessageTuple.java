@@ -3,7 +3,7 @@ package chat;
 /**
  * Created by hanzki on 21.12.2014.
  */
-class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
+class MessageTuple implements ChatServerTuple<MessageTuple> {
     private final static String TUPLE_PREFIX = "MSG";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
@@ -12,12 +12,12 @@ class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
 
     private String message;
 
-    public ChatMessageTuple(String channelName, int messageId) {
+    public MessageTuple(String channelName, int messageId) {
         this.channelName = channelName;
         this.messageId = messageId;
     }
 
-    public ChatMessageTuple(String channelName, int messageId, String message) {
+    public MessageTuple(String channelName, int messageId, String message) {
         this.channelName = channelName;
         this.messageId = messageId;
         this.message = message;
@@ -25,7 +25,7 @@ class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
     }
 
     @Override
-    public ChatMessageTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
+    public MessageTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         String dataChannelName;
         int dataMessageId;
         String dataMessage;
@@ -35,7 +35,7 @@ class ChatMessageTuple implements ChatServerTuple<ChatMessageTuple> {
         dataMessageId = Integer.parseInt(tupleData[2]);
         dataMessage = tupleData[3];
 
-        return new ChatMessageTuple(dataChannelName, dataMessageId, dataMessage);
+        return new MessageTuple(dataChannelName, dataMessageId, dataMessage);
     }
 
     @Override

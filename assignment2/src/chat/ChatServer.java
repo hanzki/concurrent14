@@ -18,33 +18,33 @@ public class ChatServer {
 
 	public ChatServer(TupleSpace t) {
 		tupleSpace = t;
-        ServerStatusTuple statusTuple = readTuple(t, new ServerStatusTuple());
+        SettingsTuple statusTuple = readTuple(t, new SettingsTuple());
         rows = statusTuple.getRows();
     }
 
 	public String[] getChannels() {
-		ServerStatusTuple statusTuple = readTuple(tupleSpace, new ServerStatusTuple());
+		SettingsTuple statusTuple = readTuple(tupleSpace, new SettingsTuple());
 		return statusTuple.getChannelNames();
 	}
 
 	public void writeMessage(String channel, String message) {
-        ChannelStatusTuple channelTuple = getTuple(tupleSpace, new ChannelStatusTuple(channel));
+        ChannelTuple channelTuple = getTuple(tupleSpace, new ChannelTuple(channel));
         int newMessageId = channelTuple.getLatestMessageId() + 1;
-        putTuple(tupleSpace, new ChatMessageTuple(channel, newMessageId, message));
+        putTuple(tupleSpace, new MessageTuple(channel, newMessageId, message));
         for(UUID listener : channelTuple.getListeners()){
-            putTuple(tupleSpace, new ChatMessageAlertTuple(listener, newMessageId, message));
+            putTuple(tupleSpace, new MessageQueueTuple(listener, newMessageId, message));
         }
 
         if(newMessageId - rows >= channelTuple.getOldestMessageId()){
             int startIndex = channelTuple.getOldestMessageId();
             int endIndex = newMessageId - rows;
             for(int i = startIndex; i <= endIndex; i++){
-                getTuple(tupleSpace, new ChatMessageTuple(channel, i));
+                getTuple(tupleSpace, new MessageTuple(channel, i));
             }
         }
 
-        ChannelStatusTuple newChannelTuple =
-                new ChannelStatusTuple(
+        ChannelTuple newChannelTuple =
+                new ChannelTuple(
                         channel,
                         Math.max(channelTuple.getOldestMessageId(),
                                 newMessageId - rows + 1),
@@ -55,27 +55,27 @@ public class ChatServer {
 	}
 
 	public ChatListener openConnection(String channel) {
-        ChannelStatusTuple channelTuple = getTuple(tupleSpace, new ChannelStatusTuple(channel));
+        ChannelTuple channelTuple = getTuple(tupleSpace, new ChannelTuple(channel));
         ChatListener listener = new ChatListener(tupleSpace, channel, channelTuple.getOldestMessageId());
         List<UUID> listeners = channelTuple.getListeners();
         listeners.add(listener.getListenerId());
 
         for(int msgId = channelTuple.getOldestMessageId(); msgId <= channelTuple.getLatestMessageId(); msgId++){
-            ChatMessageTuple messageTuple = readTuple(tupleSpace, new ChatMessageTuple(channel, msgId));
-            putTuple(tupleSpace, new ChatMessageAlertTuple(listener.getListenerId(), msgId, messageTuple.getMessage()));
+            MessageTuple messageTuple = readTuple(tupleSpace, new MessageTuple(channel, msgId));
+            putTuple(tupleSpace, new MessageQueueTuple(listener.getListenerId(), msgId, messageTuple.getMessage()));
         }
 
-        putTuple(tupleSpace, new ChannelStatusTuple(channel, channelTuple.getOldestMessageId(), channelTuple.getLatestMessageId(), listeners));
+        putTuple(tupleSpace, new ChannelTuple(channel, channelTuple.getOldestMessageId(), channelTuple.getLatestMessageId(), listeners));
 
         return listener;
 	}
 
     private static TupleSpace initTupleSpace(TupleSpace t, int rows, String[] channelNames){
-        ServerStatusTuple serverStatusTuple = new ServerStatusTuple(rows, channelNames);
-        putTuple(t, serverStatusTuple);
+        SettingsTuple settingsTuple = new SettingsTuple(rows, channelNames);
+        putTuple(t, settingsTuple);
         for(String channelName : channelNames){
-            ChannelStatusTuple channelStatusTuple = new ChannelStatusTuple(channelName);
-            putTuple(t, channelStatusTuple);
+            ChannelTuple channelTuple = new ChannelTuple(channelName);
+            putTuple(t, channelTuple);
         }
         return t;
     }

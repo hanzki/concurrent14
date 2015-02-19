@@ -5,8 +5,8 @@ import java.util.UUID;
 /**
  * Created by hanzki on 18.2.2015.
  */
-class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
-    private final static String TUPLE_PREFIX = "MSG_ALERT";
+class MessageQueueTuple implements ChatServerTuple<MessageQueueTuple>{
+    private final static String TUPLE_PREFIX = "MSG_QUEUE";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
     private final UUID listenerId;
@@ -14,12 +14,12 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
 
     private String message;
 
-    public ChatMessageAlertTuple(UUID listenerId, int messageId) {
+    public MessageQueueTuple(UUID listenerId, int messageId) {
         this.listenerId = listenerId;
         this.messageId = messageId;
     }
 
-    public ChatMessageAlertTuple(UUID listenerId, int messageId, String message) {
+    public MessageQueueTuple(UUID listenerId, int messageId, String message) {
         this.listenerId = listenerId;
         this.messageId = messageId;
         this.message = message;
@@ -27,7 +27,7 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
     }
 
     @Override
-    public ChatMessageAlertTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
+    public MessageQueueTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         UUID dataListenerId;
         int dataMessageId;
         String dataMessage;
@@ -37,7 +37,7 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
         dataMessageId = Integer.parseInt(tupleData[2]);
         dataMessage = tupleData[3];
 
-        return new ChatMessageAlertTuple(dataListenerId, dataMessageId, dataMessage);
+        return new MessageQueueTuple(dataListenerId, dataMessageId, dataMessage);
     }
 
     @Override

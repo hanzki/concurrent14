@@ -25,13 +25,13 @@ public class ChatListener {
 
     public String getNextMessage() {
         if(closed) throw new IllegalStateException("Listener is already closed");
-        ChatMessageAlertTuple messageTuple = getTuple(tupleSpace, new ChatMessageAlertTuple(listenerId, nextMsgId));
+        MessageQueueTuple messageTuple = getTuple(tupleSpace, new MessageQueueTuple(listenerId, nextMsgId));
         nextMsgId++;
         return messageTuple.getMessage();
 	}
 
 	public void closeConnection() {
-        ChannelStatusTuple channelTuple = getTuple(tupleSpace, new ChannelStatusTuple(channel));
+        ChannelTuple channelTuple = getTuple(tupleSpace, new ChannelTuple(channel));
 
         //remove listeners messages from tuplespace
         for(;nextMsgId <= channelTuple.getLatestMessageId();){
@@ -42,7 +42,7 @@ public class ChatListener {
         List<UUID> listeners = channelTuple.getListeners();
         listeners.remove(listenerId);
         putTuple(tupleSpace,
-                new ChannelStatusTuple(
+                new ChannelTuple(
                         channel,
                         channelTuple.getOldestMessageId(),
                         channelTuple.getLatestMessageId(),

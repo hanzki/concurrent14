@@ -1,13 +1,12 @@
 package chat;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Created by hanzki on 21.12.2014.
  */
-class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
+class SettingsTuple implements ChatServerTuple<SettingsTuple> {
 
     private static final Pattern VALID_CHANNEL_NAME_PATTERN = Pattern.compile("[a-zA-Z]+");
     private final static String DATA_SEPARATOR = ";";
@@ -17,10 +16,10 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
     private String[] channelNames;
     private int rows;
 
-    public ServerStatusTuple() {
+    public SettingsTuple() {
     }
 
-    public ServerStatusTuple(int rows, String[] channelNames) throws IllegalArgumentException {
+    public SettingsTuple(int rows, String[] channelNames) throws IllegalArgumentException {
         if (rows < 0) throw new IllegalArgumentException();
         for (String name : channelNames) {
             if (!isValidChannelName(name)) throw new IllegalArgumentException();
@@ -31,7 +30,7 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
     }
 
     @Override
-    public ServerStatusTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
+    public SettingsTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         int dataRows;
         String[] dataChannelNames;
 
@@ -39,7 +38,7 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
         dataRows = Integer.parseInt(tupleData[1]);
         dataChannelNames = tupleData[2].split(DATA_SEPARATOR);
 
-        return new ServerStatusTuple(dataRows, dataChannelNames);
+        return new SettingsTuple(dataRows, dataChannelNames);
     }
 
     @Override

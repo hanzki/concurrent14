@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * Created by hanzki on 21.12.2014.
  */
-class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
+class ChannelTuple implements ChatServerTuple<ChannelTuple> {
     private static final String SEPARATOR = ":";
     private static final String TUPLE_PREFIX = "CHAN";
     private final String channelName;
@@ -17,7 +17,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
     private int latestMessageId;
     private List<UUID> listeners;
 
-    public ChannelStatusTuple(String channelName) {
+    public ChannelTuple(String channelName) {
         this.channelName = channelName;
         oldestMessageId = 0;
         latestMessageId = -1;
@@ -25,7 +25,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         state = DATA_STATE.FULL;
     }
 
-    public ChannelStatusTuple(String channelName, int oldestMessageId, int latestMessageId, List<UUID> listeners) {
+    public ChannelTuple(String channelName, int oldestMessageId, int latestMessageId, List<UUID> listeners) {
         this.channelName = channelName;
         this.oldestMessageId = oldestMessageId;
         this.latestMessageId = latestMessageId;
@@ -34,7 +34,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
     }
 
     @Override
-    public ChannelStatusTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
+    public ChannelTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         String dataChannelName;
         int dataFirstMessageId;
         int dataLastMessageId;
@@ -52,7 +52,7 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
                 dataListeners.add(UUID.fromString(idStr));
             }
         }
-        return new ChannelStatusTuple(dataChannelName, dataFirstMessageId, dataLastMessageId, dataListeners);
+        return new ChannelTuple(dataChannelName, dataFirstMessageId, dataLastMessageId, dataListeners);
     }
 
     @Override
