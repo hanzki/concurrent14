@@ -11,7 +11,6 @@ import static chat.TupleService.putTuple;
 public class ChatServer {
 	private final TupleSpace tupleSpace;
     private final int rows;
-    private final String[] channelNames;
 
 	public ChatServer(TupleSpace t, int rows, String[] channelNames) {
 		this(initTupleSpace(t,rows,channelNames));
@@ -21,7 +20,6 @@ public class ChatServer {
 		tupleSpace = t;
         ServerStatusTuple statusTuple = readTuple(t, new ServerStatusTuple());
         rows = statusTuple.getRows();
-        channelNames = statusTuple.getChannelNames();
     }
 
 	public String[] getChannels() {
