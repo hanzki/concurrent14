@@ -1,5 +1,7 @@
 package chat;
 
+import java.util.UUID;
+
 /**
  * Created by hanzki on 18.2.2015.
  */
@@ -7,21 +9,18 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
     private final static String TUPLE_PREFIX = "MSG_ALERT";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
-    private final String channelName;
+    private final UUID listenerId;
     private final int messageId;
-    private final int nodeId;
 
     private String message;
 
-    public ChatMessageAlertTuple(int nodeId, String channelName, int messageId) {
-        this.nodeId = nodeId;
-        this.channelName = channelName;
+    public ChatMessageAlertTuple(UUID listenerId, int messageId) {
+        this.listenerId = listenerId;
         this.messageId = messageId;
     }
 
-    public ChatMessageAlertTuple(int nodeId, String channelName, int messageId, String message) {
-        this.nodeId = nodeId;
-        this.channelName = channelName;
+    public ChatMessageAlertTuple(UUID listenerId, int messageId, String message) {
+        this.listenerId = listenerId;
         this.messageId = messageId;
         this.message = message;
         state = DATA_STATE.FULL;
@@ -29,26 +28,23 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
 
     @Override
     public ChatMessageAlertTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
-        String dataChannelName;
+        UUID dataListenerId;
         int dataMessageId;
-        int dataNodeId;
         String dataMessage;
 
-        if (tupleData.length != 5) throw new IllegalArgumentException();
-        dataNodeId = Integer.parseInt(tupleData[1]);
-        dataChannelName = tupleData[2];
-        dataMessageId = Integer.parseInt(tupleData[3]);
-        dataMessage = tupleData[4];
+        if (tupleData.length != 4) throw new IllegalArgumentException();
+        dataListenerId = UUID.fromString(tupleData[1]);
+        dataMessageId = Integer.parseInt(tupleData[2]);
+        dataMessage = tupleData[3];
 
-        return new ChatMessageAlertTuple(dataNodeId, dataChannelName, dataMessageId, dataMessage);
+        return new ChatMessageAlertTuple(dataListenerId, dataMessageId, dataMessage);
     }
 
     @Override
     public String[] getAsTemplate() {
         return new String[]{
                 TUPLE_PREFIX,
-                String.valueOf(nodeId),
-                channelName,
+                listenerId.toString(),
                 String.valueOf(messageId),
                 null
         };
@@ -59,8 +55,7 @@ class ChatMessageAlertTuple implements ChatServerTuple<ChatMessageAlertTuple>{
         if(state != DATA_STATE.FULL) throw new IllegalStateException();
         return new String[]{
                 TUPLE_PREFIX,
-                String.valueOf(nodeId),
-                channelName,
+                listenerId.toString(),
                 String.valueOf(messageId),
                 message
         };

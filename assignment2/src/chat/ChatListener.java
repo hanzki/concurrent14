@@ -1,46 +1,53 @@
 package chat;
 
+import tuplespaces.TupleSpace;
+
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
+
+import static chat.TupleService.getTuple;
+import static chat.TupleService.putTuple;
 
 public class ChatListener {
-    int c = 0;
-    private final Queue<String> messages;
-    private final ChatServer server;
+    private final UUID listenerId;
+    private final TupleSpace tupleSpace;
     private final String channel;
+    private int nextMsgId;
 
-    public ChatListener(ChatServer server, String channel) {
-        messages = new LinkedList<String>();
-        this.server = server;
+    private boolean closed = false;
+
+    public ChatListener(TupleSpace tupleSpace, String channel, int nextMsgId) {
+        this.listenerId = UUID.randomUUID();
+        this.tupleSpace = tupleSpace;
         this.channel = channel;
-    }
-
-    void addMessage(String message){
-        synchronized (messages) {
-            messages.add(message);
-            messages.notify();
-        }
+        this.nextMsgId = nextMsgId;
     }
 
     public String getNextMessage() {
-        synchronized (messages){
-            try {
-
-                while(messages.isEmpty()){
-                    messages.wait();
-                }
-                String message = messages.poll();
-                return message;
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Unexpected thing happened.");
-            }
-        }
+        if(closed) throw new IllegalStateException("Listener is already closed");
+        ChatMessageAlertTuple messageTuple = getTuple(tupleSpace, new ChatMessageAlertTuple(listenerId, nextMsgId));
+        nextMsgId++;
+        return messageTuple.getMessage();
 	}
 
 	public void closeConnection() {
-		server.closeConnection(channel, this);
+        ChannelStatusTuple channelTuple = getTuple(tupleSpace, new ChannelStatusTuple(channel));
+        List<UUID> listeners = channelTuple.getListeners();
+        listeners.remove(listenerId);
+        putTuple(tupleSpace,
+                new ChannelStatusTuple(
+                        channel,
+                        channelTuple.getOldestMessageId(),
+                        channelTuple.getLatestMessageId(),
+                        listeners
+                )
+        );
+        closed = true;
 	}
 
+    public UUID getListenerId() {
+        return listenerId;
+    }
 }

@@ -1,28 +1,35 @@
 package chat;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * Created by hanzki on 21.12.2014.
  */
 class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
-    private static final String ID_SEPARATOR = ":";
+    private static final String SEPARATOR = ":";
     private static final String TUPLE_PREFIX = "CHAN";
     private final String channelName;
     private DATA_STATE state = DATA_STATE.EMPTY;
 
-    private int firstMessageId;
-    private int lastMessageId;
+    private int oldestMessageId;
+    private int latestMessageId;
+    private List<UUID> listeners;
 
     public ChannelStatusTuple(String channelName) {
         this.channelName = channelName;
-        firstMessageId = -1;
-        lastMessageId = 0;
+        oldestMessageId = 0;
+        latestMessageId = -1;
+        listeners = new ArrayList<UUID>();
         state = DATA_STATE.FULL;
     }
 
-    public ChannelStatusTuple(String channelName, int firstMessageId, int lastMessageId) {
+    public ChannelStatusTuple(String channelName, int oldestMessageId, int latestMessageId, List<UUID> listeners) {
         this.channelName = channelName;
-        this.firstMessageId = firstMessageId;
-        this.lastMessageId = lastMessageId;
+        this.oldestMessageId = oldestMessageId;
+        this.latestMessageId = latestMessageId;
+        this.listeners = listeners;
         state = DATA_STATE.FULL;
     }
 
@@ -32,14 +39,20 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         int dataFirstMessageId;
         int dataLastMessageId;
 
-        if (tupleData.length != 3) throw new IllegalArgumentException();
+        if (tupleData.length != 4) throw new IllegalArgumentException();
         dataChannelName = tupleData[1];
-        String[] dataParts = tupleData[2].split(ID_SEPARATOR);
-        if (dataParts.length != 2) throw new IllegalArgumentException();
-        dataFirstMessageId = Integer.parseInt(dataParts[0]);
-        dataLastMessageId = Integer.parseInt(dataParts[1]);
-
-        return new ChannelStatusTuple(dataChannelName, dataFirstMessageId, dataLastMessageId);
+        String[] firstAndLastMsgId = tupleData[2].split(SEPARATOR);
+        if (firstAndLastMsgId.length != 2) throw new IllegalArgumentException();
+        dataFirstMessageId = Integer.parseInt(firstAndLastMsgId[0]);
+        dataLastMessageId = Integer.parseInt(firstAndLastMsgId[1]);
+        String[] listenerIds = tupleData[3].split(SEPARATOR);
+        List<UUID> dataListeners = new ArrayList<UUID>();
+        if(listenerIds.length > 1 || !listenerIds[0].isEmpty()){
+            for(String idStr : listenerIds){
+                dataListeners.add(UUID.fromString(idStr));
+            }
+        }
+        return new ChannelStatusTuple(dataChannelName, dataFirstMessageId, dataLastMessageId, dataListeners);
     }
 
     @Override
@@ -47,16 +60,26 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         return new String[]{
                 TUPLE_PREFIX,
                 channelName,
+                null,
                 null};
     }
 
     @Override
     public String[] getAsData() throws IllegalStateException {
         if (state != DATA_STATE.FULL) throw new IllegalStateException();
+        StringBuilder listenersStringBuilder = new StringBuilder();
+        if(!listeners.isEmpty()){
+            for(UUID listener : listeners){
+                listenersStringBuilder.append(listener.toString()).append(SEPARATOR);
+            }
+            listenersStringBuilder.deleteCharAt(listenersStringBuilder.length() - 1);
+        }
         return new String[]{
                 TUPLE_PREFIX,
                 channelName,
-                firstMessageId + ID_SEPARATOR + lastMessageId};
+                oldestMessageId + SEPARATOR + latestMessageId,
+                listenersStringBuilder.toString()
+        };
     }
 
     @Override
@@ -64,12 +87,15 @@ class ChannelStatusTuple implements ChatServerTuple<ChannelStatusTuple> {
         return state;
     }
 
-    public int getFirstMessageId() {
-        return firstMessageId;
+    public int getOldestMessageId() {
+        return oldestMessageId;
     }
 
-    public int getLastMessageId() {
-        return lastMessageId;
+    public int getLatestMessageId() {
+        return latestMessageId;
     }
 
+    public List<UUID> getListeners() {
+        return listeners;
+    }
 }

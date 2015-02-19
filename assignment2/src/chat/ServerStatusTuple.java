@@ -14,23 +14,19 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
     private static final String TUPLE_PREFIX = "CONF";
     private DATA_STATE state = DATA_STATE.EMPTY;
 
-
     private String[] channelNames;
     private int rows;
-    private int nodeCount;
 
     public ServerStatusTuple() {
     }
 
-    public ServerStatusTuple(int rows, String[] channelNames, int nodeCount) throws IllegalArgumentException {
+    public ServerStatusTuple(int rows, String[] channelNames) throws IllegalArgumentException {
         if (rows < 0) throw new IllegalArgumentException();
-        if (nodeCount < 0) throw new IllegalArgumentException();
         for (String name : channelNames) {
             if (!isValidChannelName(name)) throw new IllegalArgumentException();
         }
         this.rows = rows;
         this.channelNames = channelNames;
-        this.nodeCount = nodeCount;
         state = DATA_STATE.FULL;
     }
 
@@ -38,19 +34,17 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
     public ServerStatusTuple parseTupleData(String[] tupleData) throws IllegalArgumentException {
         int dataRows;
         String[] dataChannelNames;
-        int dataNodeCount;
 
-        if (tupleData.length != 4) throw new IllegalArgumentException();
+        if (tupleData.length != 3) throw new IllegalArgumentException();
         dataRows = Integer.parseInt(tupleData[1]);
         dataChannelNames = tupleData[2].split(DATA_SEPARATOR);
-        dataNodeCount = Integer.parseInt(tupleData[3]);
 
-        return new ServerStatusTuple(dataRows, dataChannelNames, dataNodeCount);
+        return new ServerStatusTuple(dataRows, dataChannelNames);
     }
 
     @Override
     public String[] getAsTemplate() {
-        return new String[]{TUPLE_PREFIX, null, null, null};
+        return new String[]{TUPLE_PREFIX, null, null};
     }
 
     @Override
@@ -62,8 +56,7 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
             if (i > 0) channelNamesStr += DATA_SEPARATOR;
             channelNamesStr += channelNames[i];
         }
-        String nodeCountStr = String.valueOf(nodeCount);
-        return new String[]{TUPLE_PREFIX, rowStr, channelNamesStr, nodeCountStr};
+        return new String[]{TUPLE_PREFIX, rowStr, channelNamesStr};
     }
 
     @Override
@@ -79,11 +72,6 @@ class ServerStatusTuple implements ChatServerTuple<ServerStatusTuple> {
     public int getRows() throws IllegalStateException {
         if (state != DATA_STATE.FULL) throw new IllegalStateException();
         return rows;
-    }
-
-    public int getNodeCount() throws IllegalStateException {
-        if (state != DATA_STATE.FULL) throw new IllegalStateException();
-        return nodeCount;
     }
 
     private boolean isValidChannelName(String name) {
