@@ -2,9 +2,7 @@ package chat;
 
 import tuplespaces.TupleSpace;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
 
 import static chat.TupleService.getTuple;
@@ -34,6 +32,13 @@ public class ChatListener {
 
 	public void closeConnection() {
         ChannelStatusTuple channelTuple = getTuple(tupleSpace, new ChannelStatusTuple(channel));
+
+        //remove listeners messages from tuplespace
+        for(;nextMsgId <= channelTuple.getLatestMessageId();){
+            getNextMessage();
+        }
+
+        //remove listener from tuplespace
         List<UUID> listeners = channelTuple.getListeners();
         listeners.remove(listenerId);
         putTuple(tupleSpace,

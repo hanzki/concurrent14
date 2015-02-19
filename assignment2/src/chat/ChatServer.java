@@ -73,7 +73,7 @@ public class ChatServer {
     private static TupleSpace initTupleSpace(TupleSpace t, int rows, String[] channelNames){
         ServerStatusTuple serverStatusTuple = new ServerStatusTuple(rows, channelNames);
         putTuple(t, serverStatusTuple);
-        for(String channelName : serverStatusTuple.getChannelNames()){
+        for(String channelName : channelNames){
             ChannelStatusTuple channelStatusTuple = new ChannelStatusTuple(channelName);
             putTuple(t, channelStatusTuple);
         }
