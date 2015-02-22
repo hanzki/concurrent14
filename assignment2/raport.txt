@@ -14,49 +14,112 @@ to keep the implementation simple. On saving a new tuple every other thread
 is notified which could be avoided with multiple locks but this doesn't
 affect the correctness of the solution.
 
----Chat Server---
-
-The chat server uses a single status tuple per channel for keeping track of
-message numbers and to achieve mutual exclusion. Every time a new message
-is written it is added to the queue of every currently registered listener.
-Also on new messages the channel status tuple is updated and if the message
-buffer is full the oldest messages are removed from the tuplespace. When a
-new listener is added it also locks the channel status tuple and passes all
-messages to the queue of newly created listener.
 
 ---Tuples used---
 
-([Server Id], [row count and channel names])
+-SettingsTuple-
+([TupleType], [Rows], [Channel names])
 
-This is the chat server status tuple. It has a predefined server id for 
-differentiating this server's tuples from possible other tuples in the
-tuple space. The second spot is used for storing the row count and channel
-names seperated by a seperation character. This tuple is mainly used to get
-server settings when a client connects to a existing tuple space.
+[TupleType] = String "CONF"
+[Rows] = Number of rows of backlog to save for each channel e.g. "25"
+[Channel names] = Names of channels seperated with semicolons
+e.g. "Banana,Orange,Apple"
 
-([Server Id], [Channel name], [Id of first and last message])
+Settings tuple is used to store chat network settings. There should be only
+one settings tuple in the tuplespace. It should not be modified after
+creation. Once settings tuple has been inserted into the tuplespace other
+ChatServers can join the network.
 
-This is the channel status tuple. It has the same server id as the server
-status tuple. The next spot is the name of the channel. The third spot 
-contains ids of the first and last message in the buffer. The channel
-status tuple is used often to achieve mutual exclusion of access to 
-channel's messages. There is one channel status tuple for each channel of
-the server.
+-ChannelTuple-
+([TupleType], [Channel name], [Message Ids], [Listeners])
 
-([Server Id], [Channel name], [Message Id], [Message text])
+[TupleType] = String "CHAN"
+[Channel name] = Name of the channel e.g. "orange"
+[Message Ids] = Ids of the oldest and latest messages to the channel
+seperated by a colon e.g. "23:48"
+[Listeners] = Ids of the listeners listening this channel seperated by
+colons e.g. "adsgh:jhsdfa:riqueuw:
 
-This is the tuple of a single message. It has the same server id as the 
-server status tuple and channel status tuples. It also has the name of the
-channel it belongs to. The third spot is for the message id of the message.
-The id is unique compared to other messages of the same channel. The fourth
-spot is for the message's text. The message id should always be between 
-first and last message ids of the corresponding channel status tuple.
+Channel tuple stores information about the message backlog of the channel and
+about connected listeners. There should exist only one channel tuple for each
+channel. Channel tuple also acts as a lock for writing messages and adding or
+removing listeners.
+
+-BacklogTuple-
+([TupleType], [Channel name], [Message Id], [Message text])
+
+[TupleType] = String "LOG"
+[Channel name] = Name of the channel e.g. "orange"
+[Message Id] = Id of the message e.g. "27"
+[Message text] = Text content of the message e.g. "Hello, world!"
+
+Backlog tuple saves a single message so that it can be passed to new listeners
+connecting to the channel. There shouldn't be ever more backlog tuples for a
+single channel than the rows setting of the network. The contents of a backlog
+tuple are only accessed when registering a new listener so a thread holding the
+channel tuple can remove old messages from the backlog without causing any of
+the listeners to go into a deadlock.
+
+-MessageTuple-
+([TupleType], [Listener Id], [Message Id], [Message text])
+
+[TupleType] = String "MSG"
+[Listener Id] = Id of the listener e.g. "adsgh"
+[Message Id] = Id of the message e.g. "27"
+[Message text] = Text content of the message e.g. "Hello, world!"
+
+Message tuples are always addressed to a single listener. When listener
+connects message tuples addressesd to the listener are created from all
+messages currently in backlog. Also whenever a new message is written into
+chat it is sent as message tuple to all currently connected listeners.
+Listners should only receive messages that belong to the channel the listener
+was registered to listen. When the listener disconnects all unread message
+tuples from the tuplespace are removed.
+
+
+---Chat Server---
+
+Chat server works simply. When a new network is created a Settings tuple and
+a Channel tuple for each channel are added to the tuplespace. After this any
+other Chat Server may connect the network.
+
+To write messages to the chat network the server has to accure the channel
+tuple which acts as a lock. The channel lock is required to write messages,
+register listeners and remove listeners. When writing a new message the message
+is added to the message backlog as well as sent directly to all registered
+listeners. Everytime a message is written the size of backlog is checked and
+if it exceeds the row limit set at the initialization of chat network old
+messages are removed.
+
+Channel lock is also needed to add a new listener to the channel. Listeners are
+identified by an UUID. When a new listener is created old messages from the
+backlog are sent to the listener with Message tuples. The messages are numbered
+which should guarantee the order of the messages. Listener ids are stored in
+the channel tuple.
+
+When the listener wishes to leave the network it also requires the channel lock.
+Listener then removes all messages addressed to it from the tuplespace and
+removes its id from the channel tuple.
+
+
+---Extra Code---
+
+The ChatServer implementation has dataholder classes representing the different
+types of tuples. These classes all implement the ChatServerTuple interface.
+The purpose of tuple classes is to seperate the parsing logic from the server
+logic. The server and listener also use the TupleService class which contains
+wrapper methods for tuplespace methods.
+
+Tuplespace implementation has a dataholder class Tuple to make it easier to
+compare tuples.
+
 
 ---Correctness---
 
-The implementation uses on purpose simple solutions to achieve high level
-of correctness. The code also passed all tests that were supplied with the
-starting code.
+There shouldn't be any problems with concurrency because the ChatServer
+implementation is stateless and most operations on tuplespace require the
+channel tuple lock.
+
 
 ---Unexpected behaviour---
 
