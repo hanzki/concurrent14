@@ -16,21 +16,38 @@ public class ChatListener {
 
     private boolean closed = false;
 
-    public ChatListener(TupleSpace tupleSpace, String channel, int nextMsgId) {
+    /**
+     * Creates new ChatListner that listens messages from a single channel.
+     * @param tupleSpace Chat networks tuplespace
+     * @param channel Name of the channel listener listens for
+     * @param firstMsgId Id of the first message the listener should receive
+     */
+    public ChatListener(TupleSpace tupleSpace, String channel, int firstMsgId) {
         this.listenerId = UUID.randomUUID();
         this.tupleSpace = tupleSpace;
         this.channel = channel;
-        this.nextMsgId = nextMsgId;
+        this.nextMsgId = firstMsgId;
     }
 
-    public String getNextMessage() {
+    /**
+     * Returns the next message from the channel.
+     * @return Text of the message
+     * @throws java.lang.IllegalStateException if {@link #closeConnection()} has been called previously
+     */
+    public String getNextMessage() throws IllegalStateException{
         if(closed) throw new IllegalStateException("Listener is already closed");
-        MessageQueueTuple messageTuple = getTuple(tupleSpace, new MessageQueueTuple(listenerId, nextMsgId));
+        MessageTuple messageTuple = getTuple(tupleSpace, new MessageTuple(listenerId, nextMsgId));
         nextMsgId++;
         return messageTuple.getMessage();
 	}
 
+    /**
+     * Closes connection to the chat network. Listener's other methods should not be called after calling this.
+     * @throws java.lang.IllegalStateException if {@link #closeConnection()} has been called previously
+     */
 	public void closeConnection() {
+        if(closed) throw new IllegalStateException("Listener is already closed");
+
         ChannelTuple channelTuple = getTuple(tupleSpace, new ChannelTuple(channel));
 
         //remove listeners messages from tuplespace
